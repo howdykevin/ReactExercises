@@ -5,27 +5,27 @@ const checkboxes = [
     name: "diet",
     key: "diet",
     label: "a)Dietary Restrictions",
-    value: "a"
+    value: "0"
   },
   {
     name: "physical",
     key: "physical",
     label: "b)Physical Disabilities",
-    value: "b"
+    value: "1"
   },
   {
     name: "medical",
     key: "medical",
     label: "c)Medical Needs",
-    value: "c"
+    value: "2"
   }
 ];
 
 function RemoveButton(props) {
   //   remember to add onCLick event to remove list
   return (
-    <button class="btn btn-danger" onClick={() => props.handleClick()}>
-      <i class="far fa-trash-alt" />
+    <button className="btn btn-danger" onClick={() => props.handleClick()}>
+      <i className="far fa-trash-alt" />
     </button>
   );
 }
@@ -92,7 +92,7 @@ class App extends React.Component {
     super(props);
     this.state = {
       items: [],
-      checkedItems: new Map()
+      checkedItems: ["", "", ""]
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -101,18 +101,18 @@ class App extends React.Component {
 
   //handle checkboxes
   handleChange(event) {
-    const item = event.target.value;
-    const isChecked = event.target.checked;
-    this.setState(
-      prevState => ({
-        checkedItems: prevState.checkedItems.set(item, isChecked)
-      }),
-      () => console.log(this.state.checkedItems)
+    var values = ["a", "b", "c"];
+    var restrictions = this.state.checkedItems;
+    event.target.checked
+      ? (restrictions[event.target.value] = values[event.target.value])
+      : (restrictions[event.target.value] = "");
+    this.setState({ checkedItems: restrictions }, () =>
+      console.log(this.state.checkedItems)
     );
   }
 
   createCheckboxes() {
-    return checkboxes.map(item => (
+    return checkboxes.map((item, index) => (
       <div className="form-check" key={item.key}>
         <input
           className="form-check-input"
@@ -121,6 +121,7 @@ class App extends React.Component {
           id={item.name}
           name={item.name}
           onChange={this.handleChange}
+          checked={this.state.checkedItems[index]}
         />
         <label className="form-check-label" htmlFor={item.name}>
           {item.label}
@@ -142,16 +143,11 @@ class App extends React.Component {
   //handle submission along with checkboxes
   handleSubmit = e => {
     e.preventDefault();
-    let restrictions = "";
-    if (this.state.checkedItems.size > 0) {
-      for (var key of this.state.checkedItems.keys()) {
-        restrictions += key;
-      }
-    }
+    let restrictions = this.state.checkedItems.join("");
     let itemsCopy = this.state.items.slice();
     console.log("your name is" + this.firstName.value + this.lastName.value);
     console.log("You like to" + this.activities.value);
-    console.log(this.state.checkedItems.keys());
+    console.log(this.state.checkedItems);
     console.log("you have selected " + restrictions);
 
     itemsCopy.push({
@@ -160,11 +156,14 @@ class App extends React.Component {
       activity: this.activities.value,
       targets: restrictions
     });
-    this.setState(prevState => ({
-      items: itemsCopy
-    }));
     //resetting form
-    this.form.reset();
+    this.setState(prevState => ({
+      items: itemsCopy,
+      checkedItems: ["", "", ""]
+    }));
+    this.firstName.value = "";
+    this.lastName.value = "";
+    this.activities.value = "";
   };
 
   render() {
